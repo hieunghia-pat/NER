@@ -1,12 +1,11 @@
 import torch
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from typing import List, Dict
 
 class Metrics(object):
     def __init__(self, vocab=None) -> None:
         self.vocab = vocab
 
-    def get_scores(self, predicted: torch.Tensor, true: torch.Tensor, avg_type="micro") -> Dict(str, float):
+    def get_scores(self, predicted: torch.Tensor, true: torch.Tensor, avg_type="micro"):
         """ Compute the accuracies, precision, recall and F1 score for a batch of predictions and answers """
 
         predicted = self.vocab._decode_tag(predicted)
