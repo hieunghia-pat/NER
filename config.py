@@ -10,5 +10,6 @@ json_file = "ner_dataset.json"
 batch_size = 64
 num_workers = 0
 initial_lr = 3e-3
+lr_halflife = 50000
 epochs = 10
 model_checkpoint = "saved_models"
