@@ -12,16 +12,16 @@ class LabelSmoothingLoss(nn.Module):
         self.size = size
         self.true_dist = None
         
-    def forward(self, x, gt):
+    def forward(self, x, target):
         assert x.size(1) == self.size
 
-        target = gt.argmax(dim=-1)
+        target = target.argmax(dim=-1)
         
-        true_dist = x.data.clone()
+        true_dist = x.clone()
         true_dist.fill_(self.smoothing / (self.size - 2))
-        true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
+        true_dist.scatter_(1, target.unsqueeze(1), self.confidence)
         true_dist[:, self.padding_idx] = 0
-        mask = torch.nonzero(target.data == self.padding_idx)
+        mask = torch.nonzero(target == self.padding_idx)
         
         if mask.dim() > 0:
             true_dist.index_fill_(0, mask.squeeze(), 0.0)
