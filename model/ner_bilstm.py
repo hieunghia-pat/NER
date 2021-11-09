@@ -14,6 +14,7 @@ class NERBiLSTM(nn.Module):
         self.fc = nn.Linear(rnn_size*2, num_tags)
 
     def forward(self, s, s_len):
+        print(s_len.device)
         embedded = self.dropout(self.embedding(s))
         packed = pack_padded_sequence(embedded, s_len, batch_first=True)
         out, _ = self.rnn(packed)
