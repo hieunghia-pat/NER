@@ -5,6 +5,9 @@ smoothing = 0.2
 
 ## dataset configuration
 json_file = "ner_dataset.json"
+json_file_train_vi = "phonert_train.json"
+json_file_val_vi = "phonert_val.json"
+json_file_test_vi = "phonert_test.json"
 
 ## training configuration
 batch_size = 64
