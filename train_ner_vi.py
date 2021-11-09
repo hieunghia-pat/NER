@@ -99,7 +99,7 @@ def main():
 
     train_data = json.load(open(config.json_file_train_vi))
     val_data = json.load(open(config.json_file_val_vi))
-    test_data = json.load(open(config.json_file_dev_vi))
+    test_data = json.load(open(config.json_file_test_vi))
 
     data = train_data + val_data + test_data
 
