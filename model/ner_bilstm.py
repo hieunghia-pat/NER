@@ -1,4 +1,5 @@
 from torch import nn
+from torch.nn import functional as F
 from torch.nn.utils.rnn import pack_padded_sequence
 
 from model.embedding import Embeddings
@@ -18,4 +19,4 @@ class NERBiLSTM(nn.Module):
         out, _ = self.rnn(packed)
         out = self.fc(out)
 
-        return out
+        return F.softmax(out, dim=-1)
