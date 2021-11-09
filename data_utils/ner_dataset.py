@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 
 from data_utils.vocab import Vocab
-from data_utils.utils import collate_fn
+from data_utils.utils import collate_fn, preprocess_sentence
 
 import json
 import config
@@ -25,7 +25,7 @@ class NERDataset(Dataset):
         return len(self.sentences)
 
     def __getitem__(self, idx):
-        sentence = self.sentences[idx]
+        sentence = preprocess_sentence(self.sentences[idx])
         tag = self.tags[idx]
 
         encoded_sen, seq_len = self.vocab._encode_sentence(sentence)

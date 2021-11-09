@@ -81,36 +81,40 @@ class Vocab(object):
             self.freqs.update(sentence)
             self.output_tags.update(sample["tag"])
             if len(sentence) > self.max_sentence_length:
-                self.max_sentence_length = len(sentence)
+                self.max_sentence_length = len(sentence) + 2
 
         self.output_tags = list(self.output_tags)
 
     def _encode_sentence(self, sentence):
         """ Turn a sentence into a vector of indices """
         vec = torch.ones(self.max_sentence_length).long() * self.stoi["<pad>"]
-        for i, token in enumerate(sentence):
-            vec[i] = self.stoi[token]
+        for idx, token in enumerate(["<sos>"] + sentence + ["<eos>"]):
+            vec[idx] = self.stoi[token]
 
         return vec, len(sentence)
 
     def _encode_tag(self, tag):
         """ Turn a tag of sentence into a one host vector """
-        vec = torch.ones(self.max_sentence_length, len(self.output_tags)).long() * self.output_tags.index("O")
-        for idx, t in enumerate(tag):
-            vec[idx, self.output_tags.index(tag[idx])] = 1
+        vec = torch.zeros(self.max_sentence_length, len(self.output_tags)).long()
+        for idx, t in enumerate(["O"] + tag + ["O"]):
+            vec[idx, self.output_tags.index(t)] = 1
+
+        vec[len(tag) + 2:, self.output_tags.index("O")] = 1
 
         return vec
 
     def _decode_sentence(self, sentence_vecs):
         sentences = []
         for vec in sentence_vecs:
-            sentences.append([self.itos[idx] for idx in vec.tolist() if self.itos[idx] not in ["<pad>", "<sos>", "<eos", "<unk>"]])
+            sentences.append([self.itos[idx] for idx in vec.tolist() if self.itos[idx] not in ["<pad>", "<sos>", "<eos>", "<unk>"]])
 
         return sentences
 
-    def _decode_tag(self, tag_vec):
-        tag_vec = torch.argmax(tag_vec, dim=-1).tolist()
-        tags = [self.output_tags[vec] for vec in tag_vec]
+    def _decode_tag(self, tag_vecs):
+        tags = []
+        tag_vecs = torch.argmax(tag_vecs, dim=-1).tolist()
+        for vec in tag_vecs:
+            tags.append([self.output_tags[idx] for idx in vec])
 
         return tags
 

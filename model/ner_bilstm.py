@@ -10,7 +10,7 @@ class NERBiLSTM(nn.Module):
 
         self.embedding = Embeddings(embedding_dim, vocab_size)
         self.dropout = nn.Dropout(dropout)
-        self.rnn = nn.LSTM(input_size=embedding_dim, hidden_size=rnn_size,  batch_first=True, dropout=dropout, bidirectional=True)
+        self.rnn = nn.LSTM(input_size=embedding_dim, hidden_size=rnn_size,  batch_first=True, bidirectional=True)
         self.fc = nn.Linear(rnn_size*2, num_tags)
 
     def forward(self, s, s_len):

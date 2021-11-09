@@ -39,21 +39,20 @@ def run_epoch(model, loaders, loss_func, optimizer, tracker, train=False, prefix
         rec_tracker = tracker.track('{}_recall'.format(prefix), tracker_class(**tracker_params))
         f1_tracker = tracker.track('{}_F1'.format(prefix), tracker_class(**tracker_params))
 
-        for v, q, a, q_len in tq:
-            v = v.cuda()
-            q = q.cuda()
-            a = a.cuda()
-            q_len = q_len.cuda()
+        for s, t, s_len in tq:
+            s = s.to(device)
+            t = t.to(device)
+            s_len = s_len.to(device)
 
-            out = model(v, q, q_len)
-            scores = metrics.get_scores(out.cpu(), a.cpu())
+            out = model(s, t, s_len)
+            scores = metrics.get_scores(out.cpu(), out.cpu())
 
             if train:
                 global total_iterations
                 update_learning_rate(optimizer, total_iterations)
 
                 optimizer.zero_grad()
-                loss = loss_func(out, a)
+                loss = loss_func(out, t)
                 loss.backward()
                 optimizer.step()
 
