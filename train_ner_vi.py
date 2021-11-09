@@ -80,7 +80,7 @@ def run_epoch(model, loaders, loss_func, optimizer, tracker, train=False, prefix
             micro_pre_tracker.append(micro_scores["precision"])
             micro_rec_tracker.append(micro_scores["recall"])
             micro_f1_tracker.append(micro_scores["F1"])
-            fmt = '{:.4f} : {:.4}'.format
+            fmt = '{:.4f}:{:.4}'.format
             tq.set_postfix(loss=fmt(loss_tracker.mean.value, loss_tracker.mean.value), 
                             accuracy=fmt(acc_tracker.mean.value, acc_tracker.mean.value), 
                             precision=fmt(micro_pre_tracker.mean.value, macro_pre_tracker.mean.value), 
@@ -105,12 +105,9 @@ def main():
 
     vocab = Vocab(data)
 
-    train_dataset = NERDataset(config.json_file_train_vi)
-    train_dataset.vocab = vocab
-    val_dataset = NERDataset(config.json_file_val_vi)
-    val_dataset.vocab = vocab
-    test_dataset = NERDataset(config.json_file_test_vi)
-    test_dataset.vocab = vocab
+    train_dataset = NERDataset(config.json_file_train_vi, vocab)
+    val_dataset = NERDataset(config.json_file_val_vi, vocab)
+    test_dataset = NERDataset(config.json_file_test_vi, vocab)
 
     train_loader = DataLoader(
         train_dataset,

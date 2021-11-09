@@ -8,7 +8,7 @@ import json
 import config
 
 class NERDataset(Dataset):
-    def __init__(self, json_dir):
+    def __init__(self, json_dir, vocab=None):
         super(NERDataset, self).__init__()
         data = json.load(open(json_dir, encoding="latin1"))
         
@@ -19,7 +19,7 @@ class NERDataset(Dataset):
             self.sentences.append(sample["sentence"])
             self.tags.append(sample["tag"])
 
-        self.vocab = Vocab(data)
+        self.vocab = Vocab(data) if vocab is None else vocab
 
     def __len__(self):
         return len(self.sentences)
