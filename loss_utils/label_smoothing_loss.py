@@ -12,10 +12,10 @@ class LabelSmoothingLoss(nn.Module):
         self.size = size
         self.true_dist = None
         
-    def forward(self, x, target):
+    def forward(self, x, gt):
         assert x.size(1) == self.size
 
-        target = target.argmax(dim=-1)
+        target = gt.argmax(dim=-1)
         
         true_dist = x.data.clone()
         true_dist.fill_(self.smoothing / (self.size - 2))
