@@ -43,6 +43,8 @@ def run_epoch(model, loaders, loss_func, optimizer, tracker, train=False, prefix
             s = s.to(device)
             t = t.to(device)
 
+            print(s_len.cpu().device)
+            
             out = model(s, s_len.cpu())
             scores = metrics.get_scores(out.cpu(), t.cpu())
 
