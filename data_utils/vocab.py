@@ -94,12 +94,12 @@ class Vocab(object):
         return vec, len(sentence)
 
     def _encode_tag(self, tag):
-        """ Turn a tag of sentence into a one host vector """
-        vec = torch.zeros(self.max_sentence_length, len(self.output_tags)).long()
+        """ Turn a tag of sentence into vector of indices """
+        vec = torch.zeros(self.max_sentence_length).long()
         for idx, t in enumerate(["O"] + tag + ["O"]):
-            vec[idx, self.output_tags.index(t)] = 1
+            vec[idx] = self.output_tags.index(t)
 
-        vec[len(tag) + 2:, self.output_tags.index("O")] = 1
+        vec[len(tag) + 2:] = self.output_tags.index("O")
 
         return vec
 
