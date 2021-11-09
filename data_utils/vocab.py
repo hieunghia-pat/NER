@@ -97,9 +97,9 @@ class Vocab(object):
         """ Turn a tag of sentence into vector of indices """
         vec = torch.zeros(self.max_sentence_length).long()
         for idx, t in enumerate(["O"] + tag + ["O"]):
-            vec[idx] = self.output_tags.index(t)
+            vec[idx, self.output_tags.index(t)] = 1
 
-        vec[len(tag) + 2:] = self.output_tags.index("O")
+        vec[len(tag) + 2:, self.output_tags.index("O")] = 1
 
         return vec
 
