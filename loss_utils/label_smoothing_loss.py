@@ -1,11 +1,12 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 class LabelSmoothingLoss(nn.Module):
     "Implement label smoothing."
     def __init__(self, size, padding_idx=0, smoothing=0.0):
         super(LabelSmoothingLoss, self).__init__()
-        self.criterion = nn.KLDivLoss(reduction="mean")
+        self.criterion = nn.KLDivLoss(reduction="batchmean")
         self.padding_idx = padding_idx
         self.confidence = 1.0 - smoothing
         self.smoothing = smoothing
@@ -13,8 +14,10 @@ class LabelSmoothingLoss(nn.Module):
         self.true_dist = None
         
     def forward(self, x, target):
-        assert x.size(1) == self.size
+        x = x.contiguous().view(-1, self.size)
+        target = target.contiguous().view(-1, self.size)
 
+        x = F.log_softmax(x, dim=-1)
         target = target.argmax(dim=-1)
         
         true_dist = x.clone()

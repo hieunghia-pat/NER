@@ -19,4 +19,4 @@ class NERBiLSTM(nn.Module):
         out, _ = self.rnn(embedded)
         out = self.fc(out)
 
-        return F.softmax(out, dim=-1)
+        return out
