@@ -45,7 +45,7 @@ def run_epoch(model, loaders, loss_func, optimizer, tracker, train=False, prefix
             s_len = s_len.to(device)
             
             out = model(s, s_len)
-            scores = metrics.get_scores(loader.dataset.vocab._decode_sentence(out.cpu()), loader.dataset.vocab._decode_tag(t.cpu()))
+            scores = metrics.get_scores(out.cpu(), t.cpu())
 
             if train:
                 global total_iterations
