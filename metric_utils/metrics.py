@@ -19,8 +19,8 @@ class Metrics(object):
 
         for y_hat, y in zip(predicted, true):
             acc.append(accuracy_score(y, y_hat))
-            pre.append(precision_score(y, y_hat, average=avg_type))
-            recall.append(recall_score(y, y_hat, average=avg_type))
+            pre.append(precision_score(y, y_hat, average=avg_type, zero_division=0))
+            recall.append(recall_score(y, y_hat, average=avg_type, zero_division=0))
             f1.append(f1_score(y, y_hat, average=avg_type))
 
         return {
