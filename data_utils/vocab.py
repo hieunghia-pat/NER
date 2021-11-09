@@ -80,7 +80,7 @@ class Vocab(object):
             sentence = preprocess_sentence(sample["sentence"])
             self.freqs.update(sentence)
             self.output_tags.update(sample["tag"])
-            if len(sentence) > self.max_sentence_length:
+            if len(sentence) + 2> self.max_sentence_length:
                 self.max_sentence_length = len(sentence) + 2
 
         self.output_tags = list(self.output_tags)
