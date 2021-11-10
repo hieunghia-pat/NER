@@ -14,7 +14,7 @@ class NERSelfAttention(nn.Module):
                                                 dim_feedforward=dff,
                                                 batch_first=True,
                                                 dropout=dropout), num_layers=num_layers)
-        self.rnn = nn.LSTM(input_size=embedding_dim, hidden_size=rnn_size, batch_first=True, bidirectional=True)
+        self.rnn = nn.LSTM(input_size=d_model, hidden_size=rnn_size, batch_first=True, bidirectional=True)
         self.fc = nn.Linear(rnn_size*2, len(vocab.output_tags))
 
     def forward(self, s):
