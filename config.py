@@ -2,6 +2,10 @@
 embedding_dim = 512
 rnn_size = 512
 smoothing = 0.2
+num_head = 8
+d_model = 512
+dff = 2048
+num_layers = 8
 
 ## dataset configuration
 json_file = "ner_dataset.json"

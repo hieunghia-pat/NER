@@ -1,10 +1,11 @@
 import json
 import torch
 from torch import nn
+from torch.nn.modules import rnn
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
-from model.ner_bilstm import NERBiLSTM
+from model.ner_self_attention import NERSelfAttention
 from data_utils.vocab import Vocab
 from data_utils.ner_dataset import NERDataset
 from data_utils.utils import collate_fn
@@ -132,7 +133,8 @@ def main():
     metrics.vocab = vocab
     loss_object = LabelSmoothingLoss(len(vocab.output_tags), vocab.stoi[vocab.pad], smoothing=config.smoothing).to(device)
 
-    model = nn.DataParallel(NERBiLSTM(len(vocab), config.embedding_dim, config.rnn_size, len(vocab.output_tags)).to(device))
+    model = nn.DataParallel(NERSelfAttention(vocab=vocab, embedding_dim=config.embedding_dim, rnn_size=config.rnn_size, d_model=config.d_model,
+                                                num_head=config.num_head, dff=config.dff, num_layers=config.num_layers).to(device))
     optimizer = Adam([p for p in model.parameters() if p.requires_grad])
 
     tracker = Tracker()
