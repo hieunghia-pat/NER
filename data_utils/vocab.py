@@ -1,4 +1,3 @@
-from os import setegid
 import torch
 from data_utils.vector import Vectors
 from data_utils.vector import pretrained_aliases
@@ -33,7 +32,7 @@ class Vocab(object):
                 vocabulary. Values less than 1 will be set to 1. Default: 1.
             specials: The list of special tokens (e.g., padding or eos) that
                 will be prepended to the vocabulary in addition to an <unk>
-                token. Default: ['<pad>']
+                token and must be sort in the order of [padding_tok, start_of_sentence_tok, end_of_sentence_tok, *others]. Default: ['<pad>']
             vectors: One of either the available pretrained vectors
                 or custom pretrained vectors (see Vocab.load_vectors);
                 or a list of aforementioned vectors
@@ -49,6 +48,7 @@ class Vocab(object):
         self.itos = list(specials)
         # frequencies of special tokens are not counted when building vocabulary
         # in frequency order
+        self.pad, self.sos, self.eos = specials[:-1]
         for tok in specials:
             del counter[tok]
 
@@ -87,8 +87,8 @@ class Vocab(object):
 
     def _encode_sentence(self, sentence):
         """ Turn a sentence into a vector of indices """
-        vec = torch.ones(self.max_sentence_length).long() * self.stoi["<pad>"]
-        for idx, token in enumerate(["<sos>"] + sentence + ["<eos>"]):
+        vec = torch.ones(self.max_sentence_length).long() * self.stoi[self.pad]
+        for idx, token in enumerate([self.sos] + sentence + [self.eos]):
             vec[idx] = self.stoi[token]
 
         return vec, len(sentence)
@@ -106,7 +106,7 @@ class Vocab(object):
     def _decode_sentence(self, sentence_vecs):
         sentences = []
         for vec in sentence_vecs:
-            sentences.append([self.itos[idx] for idx in vec.tolist() if self.itos[idx] not in ["<pad>", "<sos>", "<eos>", "<unk>"]])
+            sentences.append([self.itos[idx] for idx in vec.tolist() if self.itos[idx] not in [self.pad, self.sos, self.eos]])
 
         return sentences
 
@@ -136,11 +136,13 @@ class Vocab(object):
         """
         Arguments:
             vectors: one of or a list containing instantiations of the
-                GloVe, CharNGram, or Vectors classes. Alternatively, one
+                fastText, PhoW2V or Vectors classes. Alternatively, one
                 of or a list of available pretrained vectors:
                 fasttext.vi.300d
                 phow2v.syllable.100d
                 phow2v.syllable.300d
+                phow2v.word.100d
+                phow2v.word.300d
             Remaining keyword arguments: Passed to the constructor of Vectors classes.
         """
         if not isinstance(vectors, list):

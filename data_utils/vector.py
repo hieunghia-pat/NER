@@ -1,3 +1,4 @@
+import warnings
 import torch
 import os
 import logging
@@ -59,6 +60,7 @@ class Vectors(object):
         if token in self.stoi:
             return self.vectors[self.stoi[token]]
         else:
+            logger.warning(f"Warning: not found token {token} in vocab, initialze it to 0")
             return self.unk_init(torch.Tensor(self.dim))
 
     def cache(self, name, cache, url=None, max_vectors=None):
@@ -108,6 +110,9 @@ class Vectors(object):
             ext = os.path.splitext(path)[1][1:]
             if ext == 'gz':
                 open_file = gzip.open
+            elif ext == "zip":
+                path = path.replace('zip', 'txt')
+                open_file = open
             else:
                 open_file = open
 
@@ -209,9 +214,9 @@ class PhoW2V(Vectors):
         "word.300": "https://public.vinai.io/word2vec_vi_words_300dims.zip",
     }
 
-    def __init__(self, name='word', dim=300, **kwargs):
+    def __init__(self, name='word.300', dim=300, **kwargs):
         url = self.url[name]
-        name = '{}.{}d.txt'.format(name, str(dim))
+        name = os.path.basename(url)
         super(PhoW2V, self).__init__(name, url=url, **kwargs)
 
 class ViFastText(Vectors):
@@ -225,6 +230,8 @@ class ViFastText(Vectors):
 
 pretrained_aliases = {
     "fasttext.vi.300d": partial(ViFastText),
-    "phow2v.syllable.100d": partial(PhoW2V, name="syllable", dim=100),
-    "phow2v.syllable.300d": partial(PhoW2V, name="syllable", dim=300),
+    "phow2v.syllable.100d": partial(PhoW2V, name="syllable.100", dim=100),
+    "phow2v.syllable.300d": partial(PhoW2V, name="syllable.300", dim=300),
+    "phow2v.word.100d": partial(PhoW2V, name="word.100", dim=100),
+    "phow2v.word.300d": partial(PhoW2V, name="word.300", dim=300)
 }

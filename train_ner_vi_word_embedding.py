@@ -48,12 +48,11 @@ def run_epoch(model, loaders, loss_func, optimizer, tracker, train=False, prefix
         micro_rec_tracker = tracker.track('{}_recall'.format(prefix), tracker_class(**tracker_params))
         micro_f1_tracker = tracker.track('{}_F1'.format(prefix), tracker_class(**tracker_params))
 
-        for s, t, s_len in tq:
+        for s, t, _ in tq:
             s = s.to(device)
             t = t.to(device)
-            s_len = s_len.to(device)
             
-            out = model(s, s_len)
+            out = model(s)
             macro_scores = metrics.get_scores(out.cpu(), t.cpu(), avg_type="macro")
             micro_scores = metrics.get_scores(out.cpu(), t.cpu(), avg_type="micro")
 
@@ -103,7 +102,7 @@ def main():
 
     data = train_data + val_data + test_data
 
-    vocab = Vocab(data)
+    vocab = Vocab(data, vectors=config.vectors, specials=["<pad>", "<s>", "</s>", "<unk>"])
 
     train_dataset = NERDataset(config.json_file_train_vi, vocab)
     val_dataset = NERDataset(config.json_file_val_vi, vocab)

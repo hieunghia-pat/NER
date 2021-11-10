@@ -83,7 +83,7 @@ def main():
     k_fold = 5
     folds = dataset.get_kfolds(k_fold)
     metrics.vocab = dataset.vocab
-    loss_object = LabelSmoothingLoss(len(dataset.vocab.output_tags), dataset.vocab.stoi["<pad>"], smoothing=config.smoothing).to(device)
+    loss_object = LabelSmoothingLoss(len(dataset.vocab.output_tags), dataset.vocab.stoi[dataset.vocab.pad], smoothing=config.smoothing).to(device)
 
     for k in range(k_fold):
         print(f"Stage {k+1}:")
