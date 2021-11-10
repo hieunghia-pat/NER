@@ -14,7 +14,7 @@ class NERSelfAttention(nn.Module):
                                                 dim_feedforward=dff,
                                                 batch_first=True,
                                                 dropout=dropout), num_layers=num_layers)
-        self.fc = nn.Linear(rnn_size*2, len(vocab.output_tags))
+        self.fc = nn.Linear(d_model, len(vocab.output_tags))
 
     def forward(self, s):
         embedded = self.dropout(self.embedding(s))
