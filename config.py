@@ -1,5 +1,5 @@
 ## model configuration
-embedding_dim = 512
+embedding_dim = 300
 rnn_size = 512
 smoothing = 0.2
 num_head = 8
