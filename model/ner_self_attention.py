@@ -14,13 +14,11 @@ class NERSelfAttention(nn.Module):
                                                 dim_feedforward=dff,
                                                 batch_first=True,
                                                 dropout=dropout), num_layers=num_layers)
-        self.rnn = nn.LSTM(input_size=d_model, hidden_size=rnn_size, batch_first=True, bidirectional=True)
         self.fc = nn.Linear(rnn_size*2, len(vocab.output_tags))
 
     def forward(self, s):
         embedded = self.dropout(self.embedding(s))
         feature = self.encoder(embedded)
-        out, _ = self.rnn(feature)
-        out = self.fc(out)
+        out = self.fc(feature)
 
         return out
