@@ -1,13 +1,13 @@
 from torch import nn
 
-from model.embedding import PretrainedEmbeddings
+from model.embedding import PretrainedEmbeddings, PositionalEncoding
 
 class NERSelfAttention(nn.Module):
     def __init__(self, vocab, embedding_dim, rnn_size, d_model, num_head, dff, num_layers, dropout=0.5) -> None:
         super(NERSelfAttention, self).__init__()
 
         self.embedding = PretrainedEmbeddings(embedding_dim, vocab, d_model)
-        self.dropout = nn.Dropout(dropout)
+        self.pe = PositionalEncoding(d_model, dropout=dropout)
         self.encoder = nn.TransformerEncoder(nn.TransformerEncoderLayer(
                                                 d_model=d_model, 
                                                 nhead=num_head,
@@ -17,7 +17,7 @@ class NERSelfAttention(nn.Module):
         self.fc = nn.Linear(d_model, len(vocab.output_tags))
 
     def forward(self, s):
-        embedded = self.dropout(self.embedding(s))
+        embedded = self.pe(self.embedding(s))
         feature = self.encoder(embedded)
         out = self.fc(feature)
 
