@@ -9,3 +9,5 @@ __pycache__
 .vector_cache
 
 saved_models*
+
+analyse_result.ipynb

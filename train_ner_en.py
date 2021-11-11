@@ -106,8 +106,8 @@ def main():
                     "precision": val_returned["precision"],
                     "recall": val_returned["recall"],
                     "f1": val_returned["F1"],
-
                 },
+                "folds": folds,
                 'vocab': dataset.vocab,
             }
         
