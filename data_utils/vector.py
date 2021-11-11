@@ -151,7 +151,7 @@ class Vectors(object):
 
                     vectors[vectors_loaded] = torch.tensor([float(x) for x in entries])
                     vectors_loaded += 1
-                    itos.append(word)
+                    itos.append(word.strip)
 
                     if vectors_loaded == max_vectors:
                         break
