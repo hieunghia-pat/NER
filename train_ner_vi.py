@@ -105,9 +105,9 @@ def main():
 
     vocab = Vocab(data)
 
-    train_dataset = NERDataset(config.json_file_train_vi, vocab)
-    val_dataset = NERDataset(config.json_file_val_vi, vocab)
-    test_dataset = NERDataset(config.json_file_test_vi, vocab)
+    train_dataset = NERDataset(config.json_file_train_vi, vocab=vocab)
+    val_dataset = NERDataset(config.json_file_val_vi, vocab=vocab)
+    test_dataset = NERDataset(config.json_file_test_vi, vocab=vocab)
 
     train_loader = DataLoader(
         train_dataset,

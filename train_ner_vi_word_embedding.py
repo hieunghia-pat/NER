@@ -105,9 +105,9 @@ def main():
 
     vocab = Vocab(data, vectors=config.vectors, specials=["<pad>", "<s>", "</s>", "<unk>"], lower=False)
 
-    train_dataset = NERDataset(config.json_file_train_vi, vocab, lower=False)
-    val_dataset = NERDataset(config.json_file_val_vi, vocab, lower=False)
-    test_dataset = NERDataset(config.json_file_test_vi, vocab, lower=False)
+    train_dataset = NERDataset(config.json_file_train_vi, vocab=vocab, lower=False)
+    val_dataset = NERDataset(config.json_file_val_vi, vocab=vocab, lower=False)
+    test_dataset = NERDataset(config.json_file_test_vi, vocab=vocab, lower=False)
 
     train_loader = DataLoader(
         train_dataset,
