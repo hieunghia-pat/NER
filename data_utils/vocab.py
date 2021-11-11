@@ -20,7 +20,7 @@ class Vocab(object):
             numerical identifiers.
         itos: A list of token strings indexed by their numerical identifiers.
     """
-    def __init__(self, json_data, min_freq=1, specials=['<pad>', "<sos>", "<eos>", "<unk>"],
+    def __init__(self, json_data, lower=True, min_freq=1, specials=['<pad>', "<sos>", "<eos>", "<unk>"],
                  vectors=None, unk_init=None, vectors_cache=None):
         """Create a Vocab object from a collections.Counter.
         Arguments:
@@ -45,6 +45,7 @@ class Vocab(object):
         counter = self.freqs.copy()
         min_freq = max(min_freq, 1)
 
+        self.lower = lower
         self.itos = list(specials)
         # frequencies of special tokens are not counted when building vocabulary
         # in frequency order
@@ -77,7 +78,7 @@ class Vocab(object):
         self.max_sentence_length = 0
         
         for sample in json_data:
-            sentence = preprocess_sentence(sample["sentence"])
+            sentence = preprocess_sentence(sample["sentence"], lower=self.lower)
             self.freqs.update(sentence)
             self.output_tags.update(sample["tag"])
             if len(sentence) + 2> self.max_sentence_length:

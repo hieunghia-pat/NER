@@ -8,24 +8,25 @@ import json
 import config
 
 class NERDataset(Dataset):
-    def __init__(self, json_dir, vocab=None):
+    def __init__(self, json_dir, lower=True, vocab=None):
         super(NERDataset, self).__init__()
         data = json.load(open(json_dir, encoding="latin1"))
         
         self.sentences = []
         self.tags = []
+        self.lower = lower
 
         for sample in data:
             self.sentences.append(sample["sentence"])
             self.tags.append(sample["tag"])
 
-        self.vocab = Vocab(data) if vocab is None else vocab
+        self.vocab = Vocab(data, lower=lower) if vocab is None else vocab
 
     def __len__(self):
         return len(self.sentences)
 
     def __getitem__(self, idx):
-        sentence = preprocess_sentence(self.sentences[idx])
+        sentence = preprocess_sentence(self.sentences[idx], lower=self.lower)
         tag = self.tags[idx]
 
         encoded_sen, seq_len = self.vocab._encode_sentence(sentence)
