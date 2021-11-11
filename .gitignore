@@ -10,4 +10,6 @@ __pycache__
 
 saved_models*
 
-analyse_result.ipynb
+*.ipynb
+*.pdf
+*.csv
