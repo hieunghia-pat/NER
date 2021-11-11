@@ -41,11 +41,11 @@ class Vocab(object):
                 returns a Tensor of the same size. Default: torch.Tensor.zero_
             vectors_cache: directory for cached vectors. Default: '.vector_cache'
         """ 
+        self.lower = lower
         self.make_vocab(json_data)
         counter = self.freqs.copy()
         min_freq = max(min_freq, 1)
 
-        self.lower = lower
         self.itos = list(specials)
         # frequencies of special tokens are not counted when building vocabulary
         # in frequency order
