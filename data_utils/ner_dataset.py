@@ -8,9 +8,9 @@ import json
 import config
 
 class NERDataset(Dataset):
-    def __init__(self, json_dir, lower=True, vocab=None):
+    def __init__(self, json_dir, lower=True, vocab=None, encoding='utf-8'):
         super(NERDataset, self).__init__()
-        data = json.load(open(json_dir, encoding="latin1"))
+        data = json.load(open(json_dir, encoding=encoding))
         
         self.sentences = []
         self.tags = []

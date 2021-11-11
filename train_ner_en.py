@@ -79,7 +79,7 @@ def run_epoch(model, loaders, loss_func, optimizer, tracker, train=False, prefix
 
 def main():
     
-    dataset = NERDataset(config.json_file)
+    dataset = NERDataset(config.json_file, encoding="latin1")
     k_fold = 5
     folds = dataset.get_kfolds(k_fold)
     metrics.vocab = dataset.vocab
