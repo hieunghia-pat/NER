@@ -1,3 +1,4 @@
+import json
 import warnings
 import torch
 import os
@@ -16,7 +17,7 @@ def _infer_shape(f):
     num_lines, vector_dim = 0, None
     for line in f:
         if vector_dim is None:
-            row = line.rstrip().split(b" ")
+            row = line.strip().split(b" ")
             vector = row[1:]
             # Assuming word, [vector] format
             if len(vector) > 2:
@@ -60,7 +61,7 @@ class Vectors(object):
         if token in self.stoi:
             return self.vectors[self.stoi[token]]
         else:
-            logger.warning(f"Warning: not found token {token} in vocab, initialze it to 0")
+            logger.warning(f"Warning: not found token '{token}' in vocab, initialze it to 0")
             return self.unk_init(torch.Tensor(self.dim))
 
     def cache(self, name, cache, url=None, max_vectors=None):
@@ -127,7 +128,7 @@ class Vectors(object):
                 for line in tqdm(f, total=max_vectors):
                     # Explicitly splitting on " " is important, so we don't
                     # get rid of Unicode non-breaking spaces in the vectors.
-                    entries = line.rstrip().split(b" ")
+                    entries = line.strip().split(b" ")
 
                     word, entries = entries[0], entries[1:]
                     if dim is None and len(entries) > 1:
@@ -151,7 +152,7 @@ class Vectors(object):
 
                     vectors[vectors_loaded] = torch.tensor([float(x) for x in entries])
                     vectors_loaded += 1
-                    itos.append(word.strip)
+                    itos.append(word.strip())
 
                     if vectors_loaded == max_vectors:
                         break

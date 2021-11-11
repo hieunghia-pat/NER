@@ -22,7 +22,7 @@ def reporthook(t):
     return inner
 
 def preprocess_sentence(sentence, lower=True):
-    return [word.lower().strip() if lower else word for word in sentence]
+    return [word.lower().strip() if lower else word.strip() for word in sentence]
 
 def collate_fn(batch):
     # put question lengths in descending order so that we can use packed sequences later

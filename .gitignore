@@ -7,3 +7,5 @@ __pycache__
 *.pyc
 
 .vector_cache
+
+saved_models*
