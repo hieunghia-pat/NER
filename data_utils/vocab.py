@@ -5,13 +5,15 @@ from data_utils.utils import preprocess_sentence
 from collections import defaultdict, Counter
 import logging
 import six
+import json
+from typing import List
 
 logger = logging.getLogger(__name__)
 
 def _default_unk_index():
     return 0
 
-class Vocab(object):
+class Vocab:
     """Defines a vocabulary object that will be used to numericalize a field.
     Attributes:
         freqs: A collections.Counter object holding the frequencies of tokens
@@ -20,38 +22,17 @@ class Vocab(object):
             numerical identifiers.
         itos: A list of token strings indexed by their numerical identifiers.
     """
-    def __init__(self, json_data, lower=True, min_freq=1, specials=['<pad>', "<sos>", "<eos>", "<unk>"],
-                 vectors=None, unk_init=None, vectors_cache=None):
-        """Create a Vocab object from a collections.Counter.
-        Arguments:
-            counter: collections.Counter object holding the frequencies of
-                each value found in the data.
-            max_size: The maximum size of the vocabulary, or None for no
-                maximum. Default: None.
-            min_freq: The minimum frequency needed to include a token in the
-                vocabulary. Values less than 1 will be set to 1. Default: 1.
-            specials: The list of special tokens (e.g., padding or eos) that
-                will be prepended to the vocabulary in addition to an <unk>
-                token and must be sort in the order of [padding_tok, start_of_sentence_tok, end_of_sentence_tok, *others]. Default: ['<pad>']
-            vectors: One of either the available pretrained vectors
-                or custom pretrained vectors (see Vocab.load_vectors);
-                or a list of aforementioned vectors
-            unk_init (callback): by default, initialize out-of-vocabulary word vectors
-                to zero vectors; can be any function that takes in a Tensor and
-                returns a Tensor of the same size. Default: torch.Tensor.zero_
-            vectors_cache: directory for cached vectors. Default: '.vector_cache'
-        """ 
-        self.lower = lower
-        self.make_vocab(json_data)
+    def __init__(self, json_dirs, min_freq=1, vectors=None, unk_init=None, vectors_cache=None):
+        self.make_vocab(json_dirs)
         counter = self.freqs.copy()
         min_freq = max(min_freq, 1)
 
-        self.itos = list(specials)
-        # frequencies of special tokens are not counted when building vocabulary
-        # in frequency order
-        self.pad, self.sos, self.eos = specials[:-1]
-        for tok in specials:
-            del counter[tok]
+        self.padding_token = "<pad>"
+        self.bos_token = "<bos>"
+        self.eos_token = "<eos>"
+        self.unk_token = "<unk>"
+        self.special_tokens = [self.padding_token, self.bos_token, self.eos_token, self.unk_token]
+        itos = [self.padding_token, self.bos_token, self.eos_token, self.unk_token]
 
         # sort by frequency, then alphabetically
         words_and_frequencies = sorted(counter.items(), key=lambda tup: tup[0])
@@ -60,11 +41,18 @@ class Vocab(object):
         for word, freq in words_and_frequencies:
             if freq < min_freq:
                 break
-            self.itos.append(word)
+            itos.append(word)
+        self.itos = {i: w for i, w in enumerate(itos)}
 
         self.stoi = defaultdict(_default_unk_index)
         # stoi is simply a reverse dict for itos
-        self.stoi.update({tok: i for i, tok in enumerate(self.itos)})
+        self.stoi.update({tok: i for i, tok in self.itos.items()})
+
+        self.padding_idx = self.stoi[self.padding_token]
+        self.bos_idx = self.stoi[self.bos_token]
+        self.eos_idx = self.stoi[self.eos_token]
+        self.unk_idx = self.stoi[self.unk_token]
+        self.special_ids = [self.padding_idx, self.bos_idx, self.eos_idx, self.unk_idx]
 
         self.vectors = None
         if vectors is not None:
@@ -72,50 +60,49 @@ class Vocab(object):
         else:
             assert unk_init is None and vectors_cache is None
 
-    def make_vocab(self, json_data):
+    def make_vocab(self, json_dirs: List[str]):
         self.freqs = Counter()
-        self.output_tags = set()
+        self.tags = set()
         self.max_sentence_length = 0
         
-        for sample in json_data:
-            sentence = preprocess_sentence(sample["sentence"], lower=self.lower)
-            self.freqs.update(sentence)
-            self.output_tags.update(sample["tag"])
-            if len(sentence) + 2> self.max_sentence_length:
-                self.max_sentence_length = len(sentence) + 2
+        for json_dir in json_dirs:
+            data = json.load(open(json_dir, "r"))
+            for sample in data:
+                sentence = preprocess_sentence(sample["sentence"])
+                self.freqs.update(sentence)
+                self.tags.update(sample["tag"])
+                if len(sentence) + 2 > self.max_sentence_length:
+                    self.max_sentence_length = len(sentence) + 2
 
-        self.output_tags = list(self.output_tags)
+        self.tags = list(self.tags)
 
-    def _encode_sentence(self, sentence):
+    def encode_sentence(self, sentence):
         """ Turn a sentence into a vector of indices """
-        vec = torch.ones(self.max_sentence_length).long() * self.stoi[self.pad]
-        for idx, token in enumerate([self.sos] + sentence + [self.eos]):
+        vec = torch.ones(self.max_sentence_length).long() * self.padding_idx
+        for idx, token in enumerate([self.bos_token] + sentence + [self.eos_token]):
             vec[idx] = self.stoi[token]
-
-        return vec, len(sentence)
-
-    def _encode_tag(self, tag):
-        """ Turn a tag of sentence into vector of indices """
-        vec = torch.zeros(self.max_sentence_length, len(self.output_tags)).long()
-        for idx, t in enumerate(["O"] + tag + ["O"]):
-            vec[idx, self.output_tags.index(t)] = 1
-
-        vec[len(tag) + 2:, self.output_tags.index("O")] = 1
 
         return vec
 
-    def _decode_sentence(self, sentence_vecs):
+    def encode_tag(self, tags):
+        """ Turn a tag of sentence into vector of indices """
+        tag_indices = torch.ones(self.max_sentence_length).long() * self.tags.index("O")
+        for ith, tag in enumerate(["O"] + tags + ["O"]):
+            tag_indices[ith] = self.tags.index(tag)
+        
+        return tag_indices
+
+    def decode_sentence(self, sentence_vecs):
         sentences = []
         for vec in sentence_vecs:
-            sentences.append([self.itos[idx] for idx in vec.tolist() if self.itos[idx] not in [self.pad, self.sos, self.eos]])
+            sentences.append([self.itos[idx] for idx in vec.tolist() if idx not in self.special_ids])
 
         return sentences
 
-    def _decode_tag(self, tag_vecs):
+    def decode_tag(self, tag_vecs, lens):
         tags = []
-        tag_vecs = torch.argmax(tag_vecs, dim=-1).tolist()
-        for vec in tag_vecs:
-            tags.append([self.output_tags[idx] for idx in vec])
+        for vec, len in zip(tag_vecs.tolist(), lens):
+            tags.append([self.tags[idx] for idx in vec[1:len]])
 
         return tags
 

@@ -1,6 +1,7 @@
+datasets
 analyse_data.ipynb
 
-examine.py
+examine*.py
 
 __pycache__
 
@@ -12,4 +13,4 @@ saved_models*
 
 *.ipynb
 *.pdf
-*.csv
+convert*.py
