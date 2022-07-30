@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 
 from data_utils.vocab import Vocab
 from data_utils.ner_dataset import NERDataset
-from optimizers import *
+from torch.optim import Adam
 from utils import get_model, get_config
 from evaluation import compute_scores
 
@@ -119,7 +119,7 @@ def main(processor, configs):
 
     print("Defining loss and optimizer ...")
     loss_fn = nn.NLLLoss()
-    optimizer = Nero(model.parameters(), lr=configs.learning_rate)
+    optimizer = Adam(model.parameters(), lr=configs.learning_rate)
 
     epoch = 0
     pantient = 0
