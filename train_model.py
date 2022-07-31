@@ -12,6 +12,7 @@ from evaluation import compute_scores
 
 import os
 from tqdm import tqdm
+import pickle
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -76,13 +77,22 @@ def main(processor, configs):
     print('initializing...')
     dist.init_process_group(backend='gloo', init_method='env://', world_size=configs.world_size, rank=rank)
     torch.manual_seed(13)
-
-    print("Defining vocab ...")
-    vocab = Vocab([
-        configs.train_json_dir,
-        configs.val_json_dir,
-        configs.test_json_dir
-    ])
+    
+    if not os.path.isdir(os.path.join(configs.checkpoint, configs.pretrained_language_model_name)):
+        print("Creating the checkpoint path ...")
+        os.makedirs(os.path.join(configs.checkpoint, configs.pretrained_language_model_name))
+    
+    if not os.path.isfile(os.path.join(configs.checkpoint, configs.pretrained_language_model_name, "vocab.pkl")):
+        print("Defining vocab ...")
+        vocab = Vocab([
+            configs.train_json_dir,
+            configs.val_json_dir,
+            configs.test_json_dir
+        ])
+        pickle.dump(vocab, open(os.path.join(configs.checkpoint, configs.pretrained_language_model_name, "vocab.pkl"), "wb"))
+    else:
+        print("Loading vocab ...")
+        vocab = pickle.load(open(os.path.join(configs.checkpoint, configs.pretrained_language_model_name, "vocab.pkl"), "rb"))
 
     print("Create datasets ...")
     train_dataset = NERDataset(configs.train_json_dir, vocab=vocab)
@@ -118,7 +128,7 @@ def main(processor, configs):
     model = nn.parallel.DistributedDataParallel(model, device_ids=[rank])
 
     print("Defining loss and optimizer ...")
-    loss_fn = nn.NLLLoss()
+    loss_fn = nn.CrossEntropyLoss(label_smoothing=configs.label_smoothing)
     optimizer = Adam(model.parameters(), lr=configs.learning_rate)
 
     epoch = 0
@@ -143,6 +153,12 @@ def main(processor, configs):
 
             if f1 < best_f1:
                 pantient += 1
+
+            torch.save(model.state_dict(), os.path.join(configs.checkpoint, configs.pretrained_language_model_name, "last_model.pth"))
+            
+            if f1 > best_f1:
+                best_f1 = f1
+                torch.save(model.state_dict(), os.path.join(configs.checkpoint, configs.pretrained_language_model_name, "best_model.pth"))
 
             if pantient == 5:
                 break

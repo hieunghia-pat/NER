@@ -11,7 +11,7 @@ pretrained_language_model_dim: 768
 dropout: 0.1
 
 # dataset configuration
-batch_size: 8
+batch_size: 32
 workers: 2
 
 # training configuration

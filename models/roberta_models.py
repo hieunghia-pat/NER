@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from torch.nn import functional as F
 from transformers import RobertaModel
 from models.modules.attentions import ScaledDotProductAttention
 
@@ -45,4 +44,4 @@ class RoBERTaModel(nn.Module):
         # project to NER tags
         outs = self.dropout(self.fc(outs))
 
-        return F.log_softmax(outs, dim=-1)
+        return outs
