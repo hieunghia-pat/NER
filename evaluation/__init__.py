@@ -4,14 +4,14 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 
 from data_utils.vocab import Vocab
 
-def compute_scores(predicteds: List[List[int]], gts: List[List[int]], sentence_lens: List[int]):
+def compute_scores(predicteds: List[List[int]], gts: List[List[int]]):
     acc = []
     pre = []
     recall = []
     f1 = []
-    for predicted, gt, sentence_len in zip(predicteds, gts, sentence_lens):
-        predicted = predicted[:sentence_len]
-        gt = gt[:sentence_len]
+    for predicted, gt in zip(predicteds, gts):
+        predicted = predicted
+        gt = gt
         acc.append(accuracy_score(gt, predicted))
         pre.append(precision_score(gt, predicted, average="macro", zero_division=0))
         recall.append(recall_score(gt, predicted, average="macro", zero_division=0))

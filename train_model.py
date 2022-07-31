@@ -55,21 +55,19 @@ def evaluate_metrics(model: nn.Module, epoch: int, dataloader: data.DataLoader):
     model.eval()
     predicteds = []
     gts = []
-    lens = []
     with tqdm(desc=f"Epoch {epoch} - Evaluating", unit="it", total=len(dataloader)) as pbar:
         for ith, (sentences, tags, sentence_lens) in enumerate(dataloader):
             sentences = sentences.to(device)
             tags = tags.to(device)
             predicted_tags = model(sentences).argmax(dim=-1)
-            gt_tags = vocab.decode_tag(gt_tags, sentence_lens)
+            gt_tags = vocab.decode_tag(tags, sentence_lens)
             predicted_tags = vocab.decode_tag(predicted_tags, sentence_lens)
             
             predicteds += predicted_tags
-            gts = gt_tags
-            lens += sentence_lens.tolist()
+            gts += gt_tags
             pbar.update()
         
-    scores = compute_scores(predicteds, gts, sentence_lens)
+    scores = compute_scores(predicteds, gts)
     return scores
 
 def main(processor, configs):

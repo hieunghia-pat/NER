@@ -1,7 +1,7 @@
 # json files location
-train_json_dir: datasets/PhoNERT/word/phonert_train.json
-val_json_dir: datasets/PhoNERT/word/phonert_val.json
-test_json_dir: datasets/PhoNERT/word/phonert_test.json
+train_json_dir: datasets/PhoNER/word/phonert_train.json
+val_json_dir: datasets/PhoNER/word/phonert_val.json
+test_json_dir: datasets/PhoNER/word/phonert_test.json
 
 # model configuration
 pretrained_language_model_name: phobert-base
@@ -11,7 +11,7 @@ pretrained_language_model_dim: 768
 dropout: 0.1
 
 # dataset configuration
-batch_size: 32
+batch_size: 4
 workers: 2
 
 # training configuration

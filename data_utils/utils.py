@@ -1,4 +1,4 @@
-from torch.utils import data
+import torch
 
 def reporthook(t):
     """
@@ -23,9 +23,3 @@ def reporthook(t):
 
 def preprocess_sentence(sentence):
     return [word.lower().strip() for word in sentence]
-
-def collate_fn(batch):
-    # put question lengths in descending order so that we can use packed sequences later
-    batch.sort(key=lambda x: x[-1], reverse=True)
-
-    return data.dataloader.default_collate(batch)

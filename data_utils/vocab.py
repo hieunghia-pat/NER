@@ -102,7 +102,7 @@ class Vocab:
     def decode_tag(self, tag_vecs, lens):
         tags = []
         for vec, len in zip(tag_vecs.tolist(), lens):
-            tags.append([self.tags[idx] for idx in vec[1:len]])
+            tags.append([self.tags[idx] for idx in vec[1:len+1]])
 
         return tags
 
